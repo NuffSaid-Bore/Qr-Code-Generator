@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import qrcode
 import os
 
@@ -18,6 +18,17 @@ def generate_qr():
     return jsonify({'message': f'QR code saved as {image_path}'})
 
 
+@app.route('/generated_qr_codes/<path:filename>')
+def serve_qr_code(filename):
+    return send_from_directory('generated_qr_codes', filename)
+
+@app.route('/list_qr_codes', methods=['GET'])
+def list_qr_codes():
+    qr_codes_dir = 'generated_qr_codes'
+    files = os.listdir(qr_codes_dir)
+    # Filter for image files if necessary
+    image_files = [file for file in files if file.endswith(('.png', '.jpg', '.jpeg'))]
+    return jsonify(image_files)
 
 if __name__ == '__main__':
     if not os.path.exists('generated_qr_codes'):
